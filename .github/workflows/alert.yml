@@ -1,0 +1,25 @@
+name: latency-alert
+
+on:
+  schedule:
+    - cron: "0 * * * *"  # every hour, UTC
+  workflow_dispatch: {}   # allow manual run from the Actions tab
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run latency check
+        env:
+          SENTRY_URL: ${{ secrets.SENTRY_URL }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_TOKEN: ${{ secrets.SENTRY_TOKEN }}
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          CHAT_ID: ${{ secrets.CHAT_ID }}
+          P95_THRESHOLD_MS: "10000"
+          MIN_COUNT: "50"
+        run: python alert.py
